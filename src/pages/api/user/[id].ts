@@ -26,6 +26,10 @@ function extractParamAsString(queryParam: string | string[] | undefined): string
  * @param {NextApiResponse} res Response object containing the user's data in JSON
  */
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== 'GET') {
+    return res.status(405).json({ message: 'Method Not Allowed' });
+  }
+  
   const userId = extractParamAsString(req.query.id); 
 
   // Basic validation
