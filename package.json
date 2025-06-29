@@ -13,12 +13,14 @@
   "dependencies": {
     "next": "15.3.3",
     "next-auth": "^5.0.0-beta.29",
+    "mysql2": "^3.14.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
+    "@types/mysql": "^2.15.27",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
