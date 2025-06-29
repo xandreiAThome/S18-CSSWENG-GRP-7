@@ -32,21 +32,34 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).json({ message: 'Method Not Allowed' });
   }
   
-  const userId: string = extractParamAsString(req.query.userId);
-  const sortBy: string = extractParamAsString(req.query.sortBy);
-  const sortOrder: string = extractParamAsString(req.query.sortOrder);
-  
   // Basic validation
-  const userIdNum = Number(userId)
-  if (!userId || isNaN(userIdNum)) {
-    return res.status(400).json({ message: 'Invalid input: userId is invalid' });
-  }
-  
-  // Basic validation for optional request query, defaults to added_date, ASC
+  const sortByDefault = 'added_date';
+  const sortOrderDefault = 'ASC';
   const allowedSortByFields = ['added_date', 'quantity', 'product_id'];
   const allowedSortOrderFields = ['ASC', 'DESC'];
-  const finalSortBy = allowedSortByFields.includes((sortBy || 'added_date').toUpperCase()) ? sortBy : 'added_date';
-  const order = allowedSortOrderFields.includes((sortOrder || 'ASC').toUpperCase()) ? (sortOrder || 'ASC').toUpperCase() : 'ASC';
+  let userId, sortBy, sortOrder: string;
+  
+  try {
+    userId = extractParamAsString(req.query.userId);
+  } catch {
+    return res.status(400).json({ message: 'Missing required parameter: userId' });
+  }
+  try {
+    sortBy = extractParamAsString(req.query.sortBy).toLowerCase();
+    sortBy = allowedSortByFields.includes(sortBy) ? sortBy : sortByDefault
+  } catch {
+    sortBy = sortByDefault;
+  }
+  try {
+    sortOrder = extractParamAsString(req.query.sortOrder).toUpperCase();
+    sortOrder = allowedSortOrderFields.includes(sortOrder) ? sortOrder : sortOrderDefault
+  } catch {
+    sortOrder = sortOrderDefault;
+  }
+  const userIdNum = Number(userId)
+  if (!Number.isInteger(userIdNum)) {
+    return res.status(400).json({ message: 'Invalid input: userId is invalid' });
+  }
   
   try {
     const conn = await pool.getConnection();
@@ -62,7 +75,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
       
       const [rows] = await conn.query(
-        `SELECT * FROM cart_item WHERE user_id = ? ORDER BY ${finalSortBy} ${order}`,
+        `SELECT * FROM cart_item WHERE user_id = ? ORDER BY ${sortBy} ${sortOrder}`,
         [userIdNum]
       );
       

@@ -22,7 +22,7 @@ function extractParamAsString(queryParam: string | string[] | undefined): string
  * API handler to get the information of a single `user`
  * 
  * @param {NextApiRequest} req Incoming request query containing:
- * - `userId`: The ID of the `user`
+ * - `id`: The ID of the `user`
  * @param {NextApiResponse} res Response object containing the user's data in JSON
  */
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -30,20 +30,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).json({ message: 'Method Not Allowed' });
   }
   
-  const userId = extractParamAsString(req.query.id); 
-
   // Basic validation
-  const userIdNum = Number(userId)
-  if (!userId || isNaN(userIdNum)) {
+  let id: string;
+  try {
+    id = extractParamAsString(req.query.id); 
+  } catch {
+    return res.status(400).json({ message: 'Missing required parameter: id' });
+  }
+  const userIdNum = Number(id)
+  if (!Number.isInteger(userIdNum)) {
     return res.status(400).json({ message: 'Invalid input: userId is invalid' });
   }
 
   try {
     const conn = await pool.getConnection();
     try {
-      // Check if user exists
       const [users] = await conn.query<RowDataPacket[]>(
-        'SELECT id FROM users WHERE id = ?',
+        'SELECT * FROM users WHERE id = ?',
         [userIdNum]
       );
 
@@ -52,7 +55,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(404).json({ message: 'User not found' });
       }
 
-      res.status(200).json({ userdata: user });
+      res.status(200).json({ user: user });
       
     } finally {
       conn.release();
