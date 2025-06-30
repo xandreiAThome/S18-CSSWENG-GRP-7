@@ -3,6 +3,22 @@ import { ResultSetHeader } from 'mysql2';
 import { NextApiRequest, NextApiResponse } from 'next';
 
 /**
+ * Extracts the parameter taken from a ParsedUrlQuery as a single string
+ * @param queryParam The query parameter
+ * @returns The parameter if it is a string, the first element if it is an array of strings
+ * @throws If the parameter is undefined
+ */
+function extractParamAsString(queryParam: string | string[] | undefined): string {
+  if (Array.isArray(queryParam)) {
+    return queryParam[0];
+  }
+  if (queryParam === undefined) {
+    throw new Error('Missing query parameter');
+  }
+  return queryParam;
+}
+
+/**
 * API handler to remove a product
 * 
 * @param {NextApiRequest} req Incoming request containing:
@@ -14,9 +30,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).json({ message: 'Method Not Allowed' });
   }
   
-  const { id } = req.body;
-  
   // Basic validation
+  let id: string;
+  try {
+    id = extractParamAsString(req.query.id); 
+  } catch {
+    return res.status(400).json({ message: 'Missing required parameter: id' });
+  }
   const productIdNum = Number(id)
   if (!Number.isInteger(productIdNum)) {
     return res.status(400).json({ message: 'Invalid input: id is invalid' });
