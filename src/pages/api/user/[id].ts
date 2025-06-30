@@ -45,8 +45,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     const conn = await pool.getConnection();
     try {
-      const [users] = await conn.query<RowDataPacket[]>(
-        'SELECT * FROM users WHERE id = ?',
+      const [users] = await conn.execute<RowDataPacket[]>(
+        'SELECT * FROM user WHERE id = ?',
         [userIdNum]
       );
 

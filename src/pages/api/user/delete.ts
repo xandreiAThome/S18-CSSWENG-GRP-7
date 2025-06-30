@@ -27,7 +27,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     
     // Delete cart item from user
     try {
-      const [result] = await conn.query<ResultSetHeader>(
+      const [result] = await conn.execute<ResultSetHeader>(
         'DELETE FROM user WHERE id = ?',
         [userIdNum]
       )
