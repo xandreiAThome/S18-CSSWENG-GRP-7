@@ -1,4 +1,5 @@
 import pool from '@/lib/db';
+import { extractParamAsString } from '@/lib/utils';
 import { ResultSetHeader } from 'mysql2';
 import { NextApiRequest, NextApiResponse } from 'next';
 
@@ -13,12 +14,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (req.method !== 'DELETE') {
     return res.status(405).json({ message: 'Method Not Allowed' });
   }
-  
-  const { id } = req.body;
-  
+
   // Basic validation
+  let id: string;
+  try {
+    id = extractParamAsString(req.query.id); 
+  } catch {
+    return res.status(400).json({ message: 'Missing required parameter: id' });
+  }
   const userIdNum = Number(id)
-  if (!id || isNaN(userIdNum)) {
+  if (!Number.isInteger(userIdNum)) {
     return res.status(400).json({ message: 'Invalid input: id is invalid' });
   }
   
