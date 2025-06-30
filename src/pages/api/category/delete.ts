@@ -39,8 +39,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       conn.release();
     }
     
-  } catch (err) {
+  } catch (err: any) {
     console.error('DB Error:', err);
+    if (err.code === 'ER_ROW_IS_REFERENCED_2') {
+      return res.status(409).json({ message: 'Conflict: record is referenced by another resource' });
+    }
     res.status(500).json({ message: 'Internal Server Error' });
   }
 }
