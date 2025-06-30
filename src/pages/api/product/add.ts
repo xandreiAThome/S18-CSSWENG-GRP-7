@@ -6,6 +6,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
  * API handler to add a product
  * 
  * @param {NextApiRequest} req Incoming request containing the following:
+ * - `id`: The id of the product
  * - `name`: The name of the product
  * - `sku`: The Stock Keeping Unit
  * - `category_id`: The category_id of the product's category
@@ -16,14 +17,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).json({ message: 'Method Not Allowed' });
   }
   
-  const { name, sku, category_id } = req.body;
+  const { id, name, sku, category_id } = req.body;
   
   // Basic Validaton
-  if (!name || !sku || !category_id) {
+  if (!id || !name || !sku || !category_id) {
     return res.status(400).json({ message: 'Invalid input: Payload field/s missing' });
   }
   const categoryNum = Number(category_id);
-  if (isNaN(categoryNum)) {
+  if (!Number.isInteger(categoryNum)) {
+    return res.status(400).json({ message: 'Invalid input: id is invalid' });
+  }
+  const idNum = Number(id)
+  if (!Number.isInteger(idNum)) {
     return res.status(400).json({ message: 'Invalid input: id is invalid' });
   }
   if (typeof name !== 'string' || typeof sku !== 'string') {
@@ -38,15 +43,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const conn = await pool.getConnection();
     try {
       const [result] = await conn.execute<ResultSetHeader>(
-        'INSERT INTO product (name, sku, category_id) VALUES (?, ?, ?)',
-        [name, sku, categoryNum]
+        'INSERT INTO product (id, name, sku, category_id) VALUES (?, ?, ?, ?)',
+        [id, name, sku, categoryNum]
       );
       if (result.affectedRows === 0) {
         return res.status(500).json({ message: 'Internal Server Error' });
       }
       res.status(201).json({
         message: 'Product created successfully',
-        product_id: result.insertId
       });
     } finally {
       conn.release();
@@ -54,8 +58,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   } catch (err: any) {
     console.error('DB Error:', err);
     if (err.code === 'ER_DUP_ENTRY') {
-      console.error('DB Error:', err.code, err.sqlMessage, err.stack);
-      return res.status(409).json({message: 'Duplicate Entry Error'});
+      return res.status(409).json( {message: 'Duplicate Entry Error' });
+    } else if (err.code === 'ER_NO_REFERENCED_ROW_2') {
+      return res.status(400).json({ message: 'Related Record Not Found' });      
     }
     res.status(500).json({ message: 'Internal Server Error' });
   }
