@@ -1,0 +1,21 @@
+@baseURL = http://localhost:3000/api
+
+# Create a new user
+POST {{baseURL}}/user
+Content-Type: application/json
+
+{
+  "id": 1,
+  "name": "John",
+  "address": "Taft Avenue"
+}
+
+###
+
+# Get user info
+GET {{baseURL}}/user/1
+
+###
+
+# Delete user
+DELETE {{baseURL}}/user/1

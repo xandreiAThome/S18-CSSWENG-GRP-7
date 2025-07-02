@@ -1,0 +1,21 @@
+@baseURL = http://localhost:3000/api
+
+# Create a new cart-item (requires product and user id)
+POST {{baseURL}}/cart-item
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "productId": 1,
+  "quantity": 1
+}
+
+###
+
+# Get cart-item info
+GET {{baseURL}}/cart-item/10
+
+###
+
+# Delete cart-item
+DELETE {{baseURL}}/cart-item/10

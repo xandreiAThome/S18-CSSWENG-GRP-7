@@ -1,0 +1,22 @@
+@baseURL = http://localhost:3000/api
+
+# Create a new product (requires category to be made first)
+POST {{baseURL}}/product
+Content-Type: application/json
+
+{
+  "id": 1,
+  "name": "Lenovo Legion 5",
+  "sku": "515ABH2",
+  "category_id": 1
+}
+
+###
+
+# Get product info
+GET {{baseURL}}/product/1
+
+###
+
+# Delete product
+DELETE {{baseURL}}/product/1
