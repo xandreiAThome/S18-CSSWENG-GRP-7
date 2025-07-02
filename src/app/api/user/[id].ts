@@ -4,11 +4,11 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { RowDataPacket } from 'mysql2'
 
 /**
- * API handler to get the information of a single `category`
+ * API handler to get the information of a single `user`
  * 
  * @param {NextApiRequest} req Incoming request query containing:
- * - `id`: The ID of the category`
- * @param {NextApiResponse} res Response object containing the category data in JSON
+ * - `id`: The ID of the `user`
+ * @param {NextApiResponse} res Response object containing the user's data in JSON
  */
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') {
@@ -22,25 +22,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   } catch {
     return res.status(400).json({ message: 'Missing required parameter: id' });
   }
-  const categoryIdNum = Number(id)
-  if (!Number.isInteger(categoryIdNum)) {
-    return res.status(400).json({ message: 'Invalid input: id is invalid' });
+  const userIdNum = Number(id)
+  if (!Number.isInteger(userIdNum)) {
+    return res.status(400).json({ message: 'Invalid input: userId is invalid' });
   }
 
   try {
     const conn = await pool.getConnection();
     try {
-      const [categories] = await conn.query<RowDataPacket[]>(
-        'SELECT * FROM category WHERE id = ?',
-        [categoryIdNum]
+      const [users] = await conn.execute<RowDataPacket[]>(
+        'SELECT * FROM user WHERE id = ?',
+        [userIdNum]
       );
 
-      const category = categories[0];
-      if (!category) {
-        return res.status(404).json({ message: 'Category not found' });
+      const user = users[0];
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
       }
 
-      res.status(200).json({ category: category });
+      res.status(200).json({ user: user });
       
     } finally {
       conn.release();
