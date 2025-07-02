@@ -50,5 +50,5 @@ export async function POST(req: Request) {
     );
   }
 
-  return addCartItem(req);
+  return addCartItem(userIdNum, productIdNum, quantityNum);
 }
