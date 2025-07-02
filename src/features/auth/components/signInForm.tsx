@@ -9,7 +9,9 @@ export default function SignInForm() {
           await signIn("google");
         }}
       >
-        <button type="submit">Sign In</button>
+        <button type="submit" className="font-inter">
+          Sign In
+        </button>
       </form>
     </div>
   );
