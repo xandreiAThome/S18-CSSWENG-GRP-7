@@ -15,3 +15,40 @@ export function extractParamAsString(
   }
   return queryParam;
 }
+
+/**
+ * Validates the ID parameter of a route.
+ * @param idParam is the id parameter
+ * @returns A valid integer number if id is valid, else a Response with Error 
+ */
+export function validateIdParam(idParam: string | null): Number | Response {
+  if (idParam === null) {
+    return Response.json(
+      { message: "Missing required parameter: id" },
+      { status: 400 }
+    );
+  }
+  const userIdNum = Number(idParam);
+  if (!Number.isInteger(userIdNum)) {
+    return Response.json(
+      { message: "Invalid input: id is invalid" },
+      { status: 400 }
+    );
+  }
+  return userIdNum;
+}
+
+/**
+ * Catches common DB errors and returns the appropriate HTTP Response
+ * @param err is the error
+ * @returns An HTTP Error Response
+ */
+export function catchDBError(err: any) {
+  if (err.code === "ER_DUP_ENTRY") {
+    return Response.json({message: "Duplicate Entry Error"}, {status: 409});
+  } else if (err.code === "ER_NO_REFERENCED_ROW_2") {
+    return Response.json({message: "Related Record Not Found"}, {status: 400});
+  } else {
+    return Response.json({message: "Internal Server Error"}, {status: 500});
+  }
+}
