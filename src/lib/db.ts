@@ -1,4 +1,4 @@
-import mysql, { PoolOptions } from 'mysql2/promise';
+import mysql, { PoolOptions } from "mysql2/promise";
 
 const pool = mysql.createPool({
   host: process.env.HOST_DB,
