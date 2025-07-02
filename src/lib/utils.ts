@@ -48,6 +48,8 @@ export function catchDBError(err: any) {
     return Response.json({message: "Duplicate Entry Error"}, {status: 409});
   } else if (err.code === "ER_NO_REFERENCED_ROW_2") {
     return Response.json({message: "Related Record Not Found"}, {status: 400});
+  } else if (err.code === "ER_ROW_IS_REFERENCED_2") {
+    return Response.json({message: "Row is currently referenced"}, {status: 409});
   } else {
     return Response.json({message: "Internal Server Error"}, {status: 500});
   }

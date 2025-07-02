@@ -24,7 +24,7 @@ export async function GET(
       sortOrder: string
     }
   }) {
-  const id = validateIdParam(params.id)
+  const id = validateIdParam((await params).id)
   if (id instanceof Response) {
     return id;
   } else {
@@ -47,7 +47,7 @@ export async function GET(
  * - 404 Not Found: If cart-item is not found
  */
 export async function DELETE(req: Request, { params }: { params: { id: string } }) {
-  const id = validateIdParam(params.id)
+  const id = validateIdParam((await params).id)
   if (id instanceof Response) {
     return id;
   } else {

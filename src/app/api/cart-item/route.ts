@@ -1,9 +1,9 @@
 import { addCartItem } from "@features/cart-item/services/crud";
 
 /**
- * POST api/cart_item
+ * POST api/cart-item
  * 
- * Adds a cart_item with fields matching `req`'s payload
+ * Adds a cart-item with fields matching `req`'s payload
  * @param {Request} req Incoming request containing the following:
  * - `userId`: The ID of the user
  * - `productId`: The ID of the product to be added to the cart
@@ -12,7 +12,7 @@ import { addCartItem } from "@features/cart-item/services/crud";
  * Response: 
  * - 200 OK: Successfully added
  * - 400 Bad Request: If input field/s are missing or invalid
- * - 500 Internal Server Error: If the cart_item cannot be created
+ * - 500 Internal Server Error: If the cart-item cannot be created
  */
 export async function POST(req: Request) {
   const { userId, productId, quantity } = await req.json();

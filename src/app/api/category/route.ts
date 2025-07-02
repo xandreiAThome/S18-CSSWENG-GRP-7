@@ -1,12 +1,29 @@
 import { addCategory } from "@features/category/services/crud";
 
 export async function POST(req: Request) {
-  const { id, name } = await req.json();
+  let data: any;
+  try {
+    data = await req.json();
+  } catch (err) {
+    return Response.json(
+      { error: "Invalid JSON in request body" },
+      { status: 400 }
+    );
+  }
+
+  const {id, name} = data;
 
   // Basic Validaton
   if (!id || !name) {
     return Response.json(
       { message: "Invalid input: Payload field/s missing" },
+      { status: 400 }
+    );
+  }
+  const idNum = Number(id);
+  if (!Number.isInteger(idNum)) {
+    return Response.json(
+      { message: "Invalid input: id is invalid" },
       { status: 400 }
     );
   }

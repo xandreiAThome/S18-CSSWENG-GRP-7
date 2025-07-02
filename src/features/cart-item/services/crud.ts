@@ -10,7 +10,7 @@ export async function addCartItem(id: Number, productId: Number, quantity: Numbe
     const conn = await pool.getConnection();
     try {
       const [result] = await conn.execute<ResultSetHeader>(
-        "INSERT INTO cart_item (user_id, product_id, quantity) VALUES (?, ?, ?)",
+        "INSERT INTO cart_item (user_id, product_id, quantity, added_date) VALUES (?, ?, ?, NOW())",
         [id, productId, quantity]
       );
 
@@ -19,7 +19,9 @@ export async function addCartItem(id: Number, productId: Number, quantity: Numbe
       }
 
       return Response.json(
-        { message: "Cart item added successfully" },
+        { message: "Cart item added successfully",
+          cartItemId: result.insertId
+        },
         { status: 200 }
       );
     } finally {
@@ -37,7 +39,7 @@ export async function deleteCartItem(id: Number) {
     const conn = await pool.getConnection();
     try {
       const [result] = await conn.execute<ResultSetHeader>(
-        "DELETE FROM cart_item WHERE user_id = ?",
+        "DELETE FROM cart_item WHERE id = ?",
         [id]
       );
 
@@ -91,17 +93,17 @@ export async function getCartItem(id: Number, sortBy: string, sortOrder: string)
   try {
     const conn = await pool.getConnection();
     try {
-      const [users] = await conn.execute<RowDataPacket[]>(
-        "SELECT * FROM cart_item WHERE user_id = ?",
+      const [cItems] = await conn.execute<RowDataPacket[]>(
+        "SELECT * FROM cart_item WHERE id = ?",
         [id]
       );
 
-      const user = users[0];
-      if (!user) {
-        return Response.json({ message: "User not found" }, { status: 400 });
+      const cItem = cItems[0];
+      if (!cItem) {
+        return Response.json({ message: "Cart Item not found" }, { status: 400 });
       }
 
-      return Response.json({ user: user }, { status: 200 });
+      return Response.json({ cItem: cItem }, { status: 200 });
     } finally {
       conn.release();
     }

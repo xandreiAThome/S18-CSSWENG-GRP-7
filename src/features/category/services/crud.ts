@@ -1,7 +1,5 @@
 import pool from "@/lib/db";
 import { catchDBError } from "@/lib/utils";
-import { extractParamAsString } from "@/lib/utils";
-import { NextApiRequest, NextApiResponse } from "next";
 import { RowDataPacket } from "mysql2";
 import { ResultSetHeader } from "mysql2";
 
@@ -23,7 +21,7 @@ export async function addCategory(id: Number, name: string) {
       if (result.affectedRows === 0) {
         return Response.json({ message: "Internal Server Error" }, { status: 500 });
       }
-      return Response.json({message: "User created successfully"}, {status: 201});
+      return Response.json({message: "Category created successfully"}, {status: 201});
     } finally {
       conn.release();
     }

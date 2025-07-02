@@ -53,10 +53,7 @@ export async function deleteUser(id: Number) {
     }
   } catch (err) {
     console.error("DB Error:", err);
-    Response.json({
-      status: 500,
-      message: "Internal Server Error",
-    });
+    return catchDBError(err);
   }
 }
 
@@ -86,6 +83,6 @@ export async function getUser(id: Number) {
     }
   } catch (err) {
     console.error("DB Error:", err);
-    return Response.json({ message: "Internal Server Error" }, { status: 500 });
+    return catchDBError(err);
   }
 }
