@@ -1,101 +1,47 @@
 import pool from "@/lib/db";
+import { catchDBError } from "@/lib/utils"
 import { ResultSetHeader, RowDataPacket } from "mysql2";
 
 /**
- * POST api/user
- *
- * Adds a user with fields matching `req`'s payload
- * @param {Request} req Incoming request containing:
- * - `id`: The id of the user
- * - `name`: The name of the user
- * - `address`: The address of the user
- * 
- * Response: 
- * - 200 OK: Successfully Added
- * - 400 Bad Request: If input fields is/are invalid
- * - 500 Not Found: If user cannot be created
+ * Adds a user to the database
+ * @param id the id of the user
+ * @param name the name of the user
+ * @param address the address of the user
+ * @returns HTTP Response containing the status
  */
-export async function addUser(req: Request) {
-  const { id, name, address } = await req.json();
-
-  // Basic validation
-  if (!id || !name || !address) {
-    return Response.json(
-      { message: "Invalid input: Payload field/s missing" },
-      { status: 400 }
-    );
-  }
-  const userIdNum = Number(id);
-  if (!id || isNaN(userIdNum)) {
-    return Response.json(
-      { message: "Invalid input: id is invalid" },
-      { status: 400 }
-    );
-  }
-
+export async function addUser(id: Number, name: string, address: string) {
   try {
     const conn = await pool.getConnection();
     try {
       const [result] = await conn.execute<ResultSetHeader>(
         "INSERT INTO user (id, name, address) VALUES (?, ?, ?)",
-        [userIdNum, name, address]
+        [id, name, address]
       );
       if (result.affectedRows === 0) {
         return Response.json({ status: 500, message: "Internal Server Error" });
       }
-      return Response.json({message: "User created successfully"}, {status: 200});
+      return Response.json({message: "User created successfully"}, {status: 201});
     } finally {
       conn.release();
     }
   } catch (err: any) {
     console.error("DB Error:", err);
-    if (err.code === "ER_DUP_ENTRY") {
-      return Response.json({message: "Duplicate Entry Error"}, {status: 409});
-    } else {
-      return Response.json({message: "Internal Server Error"}, {status: 500});
-    }
+    return catchDBError(err);
   }
 }
 
-
 /**
- * DELETE /api/user/[id]
- *
- * Deletes a user based on the dynamic `id` parameter in the URL path.
- * Example request: DELETE /api/user/123
- * 
- * Route param:
- * - id (string): User ID passed as part of the URL (e.g., /api/user/123)
- * 
- * Response:
- * - 200 OK: Successfully Deleted
- * - 400 Bad Request: If ID is not a valid integer
- * - 404 Not Found: If user is not found
+ * Deletes a specific user
+ * @param id the user's id
+ * @returns HTTP Response containing the status
  */
-
-export async function deleteUser(req: Request, { params }: { params: { id: string } }) {
- // Basic validation
-  const id: string | null = params.id;
-  if (id === null) {
-    return Response.json(
-      { message: "Missing required parameter: id" },
-      { status: 400 }
-    );
-  }
-  const userIdNum = Number(id);
-  if (!Number.isInteger(userIdNum)) {
-    return Response.json(
-      { message: "Invalid input: id is invalid" },
-      { status: 400 }
-    );
-  }
-
+export async function deleteUser(id: Number) {
   try {
     const conn = await pool.getConnection();
     try {
       const [result] = await conn.execute<ResultSetHeader>(
         "DELETE FROM user WHERE id = ?",
-        [userIdNum]
+        [id]
       );
       if (result.affectedRows > 0) {
         return Response.json({message: "Item successfully deleted"}, {status: 200});
@@ -114,43 +60,19 @@ export async function deleteUser(req: Request, { params }: { params: { id: strin
   }
 }
 
-/**
- * GET /api/user/[id]
- *
- * Retrieves user information based on the dynamic `id` parameter in the URL path.
- * Example request: GET /api/user/123
- * 
- * Route param:
- * - id (string): User ID passed as part of the URL (e.g., /api/user/123)
- * 
- * Response:
- * - 200 OK: Returns user data
- * - 400 Bad Request: If ID is not a valid integer
- * - 404 Not Found: If user is not found
- */
-export async function getUser(req: Request, { params }: { params: { id: string } }) {
-  // Basic validation
-  const id: string | null = params.id;
-  if (id === null) {
-    return Response.json(
-      { message: "Missing required parameter: id" },
-      { status: 400 }
-    );
-  }
-  const userIdNum = Number(id);
-  if (!Number.isInteger(userIdNum)) {
-    return Response.json(
-      { message: "Invalid input: id is invalid" },
-      { status: 400 }
-    );
-  }
 
+/**
+ * Gets a specific user's data
+ * @param id the user's id
+ * @returns HTTP Response containing the user's data or an error
+ */
+export async function getUser(id: Number) {
   try {
     const conn = await pool.getConnection();
     try {
       const [users] = await conn.execute<RowDataPacket[]>(
         "SELECT * FROM user WHERE id = ?",
-        [userIdNum]
+        [id]
       );
 
       const user = users[0];
