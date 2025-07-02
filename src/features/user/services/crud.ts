@@ -18,7 +18,7 @@ export async function addUser(id: Number, name: string, address: string) {
         [id, name, address]
       );
       if (result.affectedRows === 0) {
-        return Response.json({ status: 500, message: "Internal Server Error" });
+        return Response.json({ message: "Internal Server Error" }, { status: 500 });
       }
       return Response.json({message: "User created successfully"}, {status: 201});
     } finally {

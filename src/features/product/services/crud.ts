@@ -31,7 +31,6 @@ export async function getProduct(id: Number) {
   }
 }
 
-
 /**
  * Adds a product to the database
  *
