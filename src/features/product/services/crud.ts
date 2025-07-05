@@ -3,6 +3,27 @@ import { catchDBError } from "@/lib/utils";
 import { RowDataPacket } from "mysql2";
 import { ResultSetHeader } from "mysql2";
 
+export async function getAllProducts(){
+  try{
+    const conn = await pool.getConnection();
+    try{
+      const [products] = await conn.query<RowDataPacket[]>(
+        "SELECT * FROM product"
+      );
+      if(!products){
+        return Response.json({message: "No available products"}, {status: 404});
+      }
+      return Response.json({products: products}, {status: 200});
+    } finally{
+      conn.release();
+    }
+
+  } catch(err){
+    console.error("DB Error:", err);
+    return Response.json({message: "Internal Server Error"}, {status: 500});
+  }
+}
+
 /**
  * Gets the data of a product
  *
