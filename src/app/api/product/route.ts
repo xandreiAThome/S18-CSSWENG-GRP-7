@@ -1,4 +1,21 @@
-import { addProduct } from "@features/product/services/crud";
+import { addProduct , getAllProducts } from "@features/product/services/crud";
+
+/**
+   * GET api/product
+   * 
+   * Gets all the existing products
+   * @param {none}
+   * 
+   * Response:
+   * - 200 OK: Succesful Response
+   * - 404 Not Found: No Products can be found
+   * - 500 Bad Request: Internal Server Error 
+   */
+
+  export async function GET(){
+    return getAllProducts();
+  }
+
 
 /**
  * POST api/product
