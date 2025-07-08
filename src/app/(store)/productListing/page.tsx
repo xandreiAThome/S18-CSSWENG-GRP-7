@@ -24,7 +24,7 @@ const dummyProducts = [
 
 export default function ProductListing() {
   return (
-    <div>
+    <div className="">
       <h1 className="text-center bg-black text-white text-3xl p-4">
         SPECIFIC CATEGORY
       </h1>
