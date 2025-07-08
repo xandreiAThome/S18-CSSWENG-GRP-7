@@ -1,4 +1,4 @@
-import { addCartItem } from "@features/cart-item/services/crud";
+import { upsertCartItem } from "@/features/cart-item/services/crud";
 
 /**
  * POST api/cart-item
@@ -8,6 +8,8 @@ import { addCartItem } from "@features/cart-item/services/crud";
  * - `userId`: The ID of the user
  * - `productId`: The ID of the product to be added to the cart
  * - `quantity`: The number of items to be added
+ * 
+ * If a cart-item with productId exists already, will update the quantity.
  * 
  * Response: 
  * - 200 OK: Successfully added
@@ -50,5 +52,5 @@ export async function POST(req: Request) {
     );
   }
 
-  return addCartItem(userIdNum, productIdNum, quantityNum);
+  return upsertCartItem(userIdNum, productIdNum, quantityNum);
 }

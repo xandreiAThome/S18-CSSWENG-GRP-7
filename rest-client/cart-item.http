@@ -7,15 +7,19 @@ Content-Type: application/json
 {
   "userId": 1,
   "productId": 1,
-  "quantity": 1
+  "quantity": 12
 }
 
 ###
 
 # Get cart-item info
-GET {{baseURL}}/cart-item/10
+GET {{baseURL}}/cart-item/1
+
+###
+GET {{baseURL}}/cart-item/1?sortOrder=DESC
+
 
 ###
 
 # Delete cart-item
-DELETE {{baseURL}}/cart-item/10
+DELETE {{baseURL}}/cart-item/1/26

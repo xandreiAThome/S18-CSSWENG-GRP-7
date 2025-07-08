@@ -1,26 +1,29 @@
-// TO BE CHANGED LATER (NOT DONE)
-
 import pool from "@/lib/db";
 import { catchDBError } from "@/lib/utils";
 import { ResultSetHeader, RowDataPacket } from "mysql2";
 
 
-export async function addCartItem(id: Number, productId: Number, quantity: Number) {
+export async function upsertCartItem(id: Number, productId: Number, quantity: Number) {
   try {
     const conn = await pool.getConnection();
+    const now = new Date();
     try {
       const [result] = await conn.execute<ResultSetHeader>(
-        "INSERT INTO cart_item (user_id, product_id, quantity, added_date) VALUES (?, ?, ?, NOW())",
-        [id, productId, quantity]
+        `INSERT INTO cart_item (user_id, product_id, quantity, added_date) VALUES (?, ?, ?, ?)
+        ON DUPLICATE KEY UPDATE quantity = VALUES(quantity), added_date = VALUES(added_date)`,
+        [id, productId, quantity, now]
       );
 
       if (result.affectedRows === 0) {
         return Response.json({ message: "Insert failed" }, { status: 500 });
-      }
+      } 
+
+      const message = result.affectedRows === 1
+        ? "Cart item inserted successfully"
+        : "Cart item updated successfully";
 
       return Response.json(
-        { message: "Cart item added successfully",
-          cartItemId: result.insertId
+        { message: message,
         },
         { status: 200 }
       );
@@ -34,19 +37,19 @@ export async function addCartItem(id: Number, productId: Number, quantity: Numbe
   }
 }
 
-export async function deleteCartItem(id: Number) {
+export async function deleteCartItem(userId: Number, cartItemId: Number) {
   try {
     const conn = await pool.getConnection();
     try {
       const [result] = await conn.execute<ResultSetHeader>(
-        "DELETE FROM cart_item WHERE id = ?",
-        [id]
+        "DELETE FROM cart_item WHERE user_id = ? AND id = ?",
+        [userId, cartItemId]
       );
 
       if (result.affectedRows > 0) {
-        return Response.json({ message: "Item(s) successfully deleted" }, { status: 200 });
+        return Response.json({ message: "Item successfully deleted" }, { status: 200 });
       } else {
-        return Response.json({ message: "No items found for this user" }, { status: 404 });
+        return Response.json({ message: `No such cart-item found for this user` }, { status: 404 });
       }
     } finally {
       conn.release();
@@ -61,13 +64,11 @@ export async function deleteCartItem(id: Number) {
 }
 
 /**
- * API handler to fetch the cart_items of a user
+ * Gets the cart-item/s of a specific user.
  *
- * @param {NextApiRequest} req Incoming request containing:
- * - `userId`: The ID of the `user`
+ * - `id`: The ID of the `user`
  * - `sortBy`: Field to sort by -- `"added_date"`, `"quantity"`, `"product_id"`
  * - `sortOrder`: Sort Direction -- `"ASC"`, `"DESC"`
- * @param {NextApiResponse} res Response object containing `userId` and the `cart_items` associated with it
  */
 export async function getCartItem(id: Number, sortBy: string, sortOrder: string) {
   // Sort Validation
@@ -75,6 +76,9 @@ export async function getCartItem(id: Number, sortBy: string, sortOrder: string)
   const sortOrderDefault = "ASC";
   const allowedSortByFields = ["added_date", "quantity", "product_id"];
   const allowedSortOrderFields = ["ASC", "DESC"];
+
+  console.log(sortBy);
+  console.log(sortOrder);
 
   try {
     sortBy = sortBy.toLowerCase();
@@ -93,17 +97,17 @@ export async function getCartItem(id: Number, sortBy: string, sortOrder: string)
   try {
     const conn = await pool.getConnection();
     try {
+      console.log(`SELECT * FROM cart_item WHERE user_id = ? ORDER BY ${sortBy} ${sortOrder}`);
       const [cItems] = await conn.execute<RowDataPacket[]>(
-        "SELECT * FROM cart_item WHERE id = ?",
+        `SELECT * FROM cart_item WHERE user_id = ? ORDER BY ${sortBy} ${sortOrder}`,
         [id]
       );
 
-      const cItem = cItems[0];
-      if (!cItem) {
-        return Response.json({ message: "Cart Item not found" }, { status: 400 });
+      if (!cItems) {
+        return Response.json({ message: "User Cart Item/s not found" }, { status: 400 });
       }
 
-      return Response.json({ cItem: cItem }, { status: 200 });
+      return Response.json({ cItems }, { status: 200 });
     } finally {
       conn.release();
     }

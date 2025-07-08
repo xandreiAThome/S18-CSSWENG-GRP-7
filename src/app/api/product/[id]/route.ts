@@ -16,7 +16,7 @@ import { validateIdParam } from "@/lib/utils";
  * - 404 Not Found: If product is not found
  */
 export async function GET(req: Request, { params }: {params: {id: string } }) {
-  const id = validateIdParam(params.id)
+  const id = validateIdParam((await params).id)
   if (id instanceof Response) {
     return id;
   } else {
@@ -39,7 +39,7 @@ export async function GET(req: Request, { params }: {params: {id: string } }) {
  * - 404 Not Found: If product is not found
  */
 export async function DELETE(req: Request, { params }: {params: {id: string } }) {
-  const id = validateIdParam(params.id)
+  const id = validateIdParam((await params).id)
   if (id instanceof Response) {
     return id;
   } else {
