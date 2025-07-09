@@ -6,12 +6,22 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { auth } from "@/features/auth/services/auth";
+import { redirect } from "next/navigation";
 
-export default function ProfilePage() {
+export default async function ProfilePage() {
+  const session = await auth();
+
+  if (!session?.user) {
+    redirect("/signIn");
+  }
+
   return (
     <div className="flex justify-center mt-15">
       <div className="mx-7 mt-3">
-        <div className="font-bold">Hello, [user]</div>
+        <div className="font-bold">
+          Hello, {session && session.user?.name ? session.user.name : "Guest"}!
+        </div>
         <div className="my-5">
           <button type="button" className="font-semibold">
             {" "}

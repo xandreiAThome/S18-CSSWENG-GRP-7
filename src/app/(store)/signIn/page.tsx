@@ -7,8 +7,15 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import SignInForm from "@/features/auth/components/signInForm";
+import { auth } from "@/features/auth/services/auth";
+import { redirect } from "next/navigation";
 
-export default function SignInCard() {
+export default async function SignInCard() {
+  const session = await auth();
+
+  if (session?.user) {
+    redirect("/productListing");
+  }
   return (
     <div className="flex items-center justify-center content-center h-screen mt-[-110]">
       <Card className="w-1/5 bg-gray-200">
