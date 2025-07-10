@@ -1,3 +1,9 @@
+"use client";
+
+import Image from 'next/image'
+
+import { useState } from 'react'
+
 import { Button } from "@/components/ui/button"
 
 import {
@@ -39,7 +45,14 @@ const dummyProduct = {
     details: "test test test test test test",
 }
 
+const images = [
+  { src: "/placeholder1.png", alt: "image1" },
+  { src: "/placeholder2.png", alt: "image2" }
+];
+
 export default function ProductPage(){
+    const [selectedImage, setSelectedImage] = useState(images[0].src); 
+
     return(
         <div className="flex flex-row justify-evenly p-4">
         <div className="flex flex-col grow-4">
@@ -67,12 +80,17 @@ export default function ProductPage(){
                 <div className="flex flex-row">
                     <Carousel orientation="vertical" className="flex grow-2 p-5">
                         <CarouselContent>
-                            <CarouselItem>image 1</CarouselItem>
-                            <CarouselItem>image 2</CarouselItem>
+                            {images.map((image, index) => (
+                                <CarouselItem key={index}>
+                                <div onClick={() => setSelectedImage(image.src)} className="cursor-pointer hover:opacity-80">
+                                    <Image src={image.src} width={60} height={60} alt={image.alt} />
+                                </div>
+                                </CarouselItem>
+                            ))}
                         </CarouselContent>
                     </Carousel>
                     <div className="flex grow-2 p-10">
-                        <p>Image 1</p>
+                        <Image src={selectedImage} width={250} height={250} alt="Selected Product Image" />
                     </div>
                 </div>
             </div>
