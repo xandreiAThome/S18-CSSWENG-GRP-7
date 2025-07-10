@@ -76,7 +76,7 @@ export default async function Layout({
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-              <Link href={"/cart"}>
+              <Link href={"/shoppingCart"}>
                 <ShoppingCart className="size-8" />
               </Link>
             </>
