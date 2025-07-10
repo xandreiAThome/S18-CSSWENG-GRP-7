@@ -10,7 +10,11 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 # Install dependencies based on the preferred package manager
-COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* .npmrc* ./
+COPY package.json ./
+COPY yarn.lock ./
+COPY package-lock.json ./
+COPY pnpm-lock.yaml ./
+COPY .npmrc ./
 RUN \
     if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
     elif [ -f package-lock.json ]; then npm ci; \
@@ -49,4 +53,5 @@ EXPOSE 3000
 
 ENV PORT=3000
 
-CMD HOSTNAME="0.0.0.0" node server.js
+# Use the correct entrypoint for Next.js standalone build
+CMD HOSTNAME="0.0.0.0" node server.js || node index.js || node .next/standalone/server.js
