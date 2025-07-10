@@ -11,10 +11,10 @@ WORKDIR /app
 
 # Install dependencies based on the preferred package manager
 COPY package.json ./
-COPY yarn.lock ./
-COPY package-lock.json ./
-COPY pnpm-lock.yaml ./
-COPY .npmrc ./
+RUN if [ -f yarn.lock ]; then cp yarn.lock ./; fi
+RUN if [ -f package-lock.json ]; then cp package-lock.json ./; fi
+RUN if [ -f pnpm-lock.yaml ]; then cp pnpm-lock.yaml ./; fi
+RUN if [ -f .npmrc ]; then cp .npmrc ./; fi
 RUN \
     if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
     elif [ -f package-lock.json ]; then npm ci; \
