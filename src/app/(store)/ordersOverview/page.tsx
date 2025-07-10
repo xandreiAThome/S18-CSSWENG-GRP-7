@@ -1,8 +1,30 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Calendar, Download, Filter, LayoutDashboard, ShoppingBag, User} from "lucide-react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Calendar,
+  Download,
+  Filter,
+  LayoutDashboard,
+  ShoppingBag,
+  User,
+} from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { auth } from "@/features/auth/services/auth";
+import { redirect } from "next/navigation";
 
 const orders = new Array(4).fill({
   id: "#OrderID1234",
@@ -14,11 +36,17 @@ const orders = new Array(4).fill({
   total: "₱0,000",
 });
 
-export default function OrdersPage() {
+export default async function OrdersPage() {
+  const session = await auth();
+
+  if (!session?.user) {
+    redirect("/signIn");
+  }
+
   return (
     <div className="flex h-full w-full">
       {/* Sidebar */}
-       <aside className="w-60 bg-gray-100 border-r p-4">
+      <aside className="w-60 bg-gray-100 border-r p-4">
         <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
           <LayoutDashboard className="h-5 w-5" /> Points Dashboard
         </h2>
@@ -32,39 +60,50 @@ export default function OrdersPage() {
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-3xl font-bold">Orders</h1>
           <div className="flex items-center gap-2">
-
             {/* Export Button */}
             <Button variant="outline" className="bg-gray-200 hover:bg-gray-300">
               <Download className="mr-2 h-4 w-4" /> Export
-          </Button>
+            </Button>
 
-          {/* Select Filter */}
-          <Select>
-            <SelectTrigger className="w-[120px] bg-gray-200 hover:bg-gray-300">
-              <SelectValue placeholder={<div className="flex items-center gap-1"><Filter className="mr-2 h-4 w-4" />   Filter</div>} />
-            </SelectTrigger> 
-            <SelectContent>
-              <SelectItem value="all">All</SelectItem>
-              <SelectItem value="in-transit">In Transit</SelectItem>
-              <SelectItem value="delivered">Delivered</SelectItem>
-            </SelectContent>
-          </Select>
+            {/* Select Filter */}
+            <Select>
+              <SelectTrigger className="w-[120px] bg-gray-200 hover:bg-gray-300">
+                <SelectValue
+                  placeholder={
+                    <div className="flex items-center gap-1">
+                      <Filter className="mr-2 h-4 w-4" /> Filter
+                    </div>
+                  }
+                />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="in-transit">In Transit</SelectItem>
+                <SelectItem value="delivered">Delivered</SelectItem>
+              </SelectContent>
+            </Select>
 
-          {/* Select Range */}
-          <Select>
-            <SelectTrigger className="w-[120px] bg-gray-200 hover:bg-gray-300">
-              <SelectValue placeholder={<div className="flex items-center gap-1"><Calendar className="mr-1 h-4 w-4" />   Weekly</div>} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="daily">Daily</SelectItem>
-              <SelectItem value="weekly">Weekly</SelectItem>
-              <SelectItem value="monthly">Monthly</SelectItem>
-            </SelectContent>
-          </Select>
+            {/* Select Range */}
+            <Select>
+              <SelectTrigger className="w-[120px] bg-gray-200 hover:bg-gray-300">
+                <SelectValue
+                  placeholder={
+                    <div className="flex items-center gap-1">
+                      <Calendar className="mr-1 h-4 w-4" /> Weekly
+                    </div>
+                  }
+                />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="daily">Daily</SelectItem>
+                <SelectItem value="weekly">Weekly</SelectItem>
+                <SelectItem value="monthly">Monthly</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
-      </div>
 
-      {/* Orders Table */}
+        {/* Orders Table */}
         <Card className="bg-gray-100 flex-1">
           <CardContent className="p-0 h-full">
             <Table>
@@ -87,7 +126,7 @@ export default function OrdersPage() {
                       </span>
                     </TableCell>
                     <TableCell className="flex items-center gap-2">
-                       <User className="h-5 w-5" />
+                      <User className="h-5 w-5" />
                       {order.user}
                     </TableCell>
                     <TableCell>

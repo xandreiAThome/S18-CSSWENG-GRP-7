@@ -6,6 +6,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import ProductCard from "@/features/products/components/productCard";
+import Link from "next/link";
 
 const dummyProducts = [
   { name: "Wireless Headphones", price: 199 },
@@ -43,11 +44,9 @@ export default function ProductListing() {
         <div className="flex justify-center">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 mt-8 gap-4 max-w-fit">
             {dummyProducts.map((product, index) => (
-              <ProductCard
-                key={index}
-                name={product.name}
-                price={product.price}
-              />
+              <Link href={"/productPage"} key={index}>
+                <ProductCard name={product.name} price={product.price} />
+              </Link>
             ))}
           </div>
         </div>
